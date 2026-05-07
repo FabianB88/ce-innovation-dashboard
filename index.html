@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CE Innovation Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div id="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-icon">⬡</span>
+        <span class="brand-text">CE Dashboard</span>
+      </div>
+
+      <div class="sidebar-section-label">Boards</div>
+      <nav class="board-nav" id="board-nav"></nav>
+      <button class="btn-new-board" id="btn-new-board">+ New board</button>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section-label">Views</div>
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" data-view="kanban">
+          <span>⊞</span> Kanban
+        </button>
+        <button class="nav-btn" data-view="tasks">
+          <span>✓</span> All Tasks
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <div class="main-wrap">
+
+      <!-- Top bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="board-title" id="board-title">Select a board</h1>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-primary" id="btn-add-card" disabled>+ Add card</button>
+        </div>
+      </header>
+
+      <!-- Kanban view -->
+      <div id="view-kanban" class="view">
+        <div class="kanban-board" id="kanban-board">
+          <div class="kanban-empty" id="kanban-empty">
+            <p>Create or select a board to get started</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- All tasks view -->
+      <div id="view-tasks" class="view hidden">
+        <div class="tasks-wrap">
+          <div class="task-list" id="task-list"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal: New board -->
+  <div id="modal-board" class="modal hidden">
+    <div class="modal-box">
+      <h3>New board</h3>
+      <label>Board name
+        <input id="board-name-input" class="input" type="text" placeholder="e.g. Sprint 1, Marketing, Research" />
+      </label>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="btn-cancel-board">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-board">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Card -->
+  <div id="modal-card" class="modal hidden">
+    <div class="modal-box modal-box--wide">
+      <h3 id="modal-card-title">New card</h3>
+      <label>Title
+        <input id="card-title" class="input" type="text" placeholder="What needs to be done?" />
+      </label>
+      <label>Description
+        <textarea id="card-desc" class="input input-ta" rows="3" placeholder="Add more detail..."></textarea>
+      </label>
+      <div class="modal-row">
+        <label>Assignee
+          <input id="card-assignee" class="input" type="text" placeholder="Name" />
+        </label>
+        <label>Due date
+          <input id="card-due" class="input" type="date" />
+        </label>
+      </div>
+      <label>Column
+        <select id="card-col" class="input">
+          <option value="backlog">Backlog</option>
+          <option value="todo">To Do</option>
+          <option value="inprogress">In Progress</option>
+          <option value="review">Review</option>
+          <option value="done">Done</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button class="btn btn-danger" id="btn-delete-card" style="margin-right:auto; display:none">Delete</button>
+        <button class="btn btn-ghost" id="btn-cancel-card">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-card">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
