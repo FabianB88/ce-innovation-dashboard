@@ -137,6 +137,19 @@ function renderBoardNav() {
     });
     nav.appendChild(btn);
   });
+  renderBoardTabs();
+}
+
+function renderBoardTabs() {
+  const tabBar = document.getElementById('board-tabs');
+  tabBar.innerHTML = '';
+  boards.forEach(board => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (board.id === activeBoardId ? ' active' : '');
+    btn.textContent = board.name;
+    btn.addEventListener('click', () => selectBoard(board.id));
+    tabBar.appendChild(btn);
+  });
 }
 
 function selectBoard(id) {
@@ -145,10 +158,10 @@ function selectBoard(id) {
   document.getElementById('board-title').textContent = board ? board.name : '';
   document.getElementById('btn-add-card').style.display = 'inline-flex';
   renderBoardNav();
-  // Cards already loaded via allCards — filter
   activeCards = allCards.filter(c => c.boardId === id);
   showView('kanban');
   renderKanban();
+  renderBoardTabs();
 }
 
 // ── View switching ────────────────────────────────────────────────────────────
@@ -156,6 +169,10 @@ function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
   document.querySelectorAll('.nav-btn, .board-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('view-' + name).classList.remove('hidden');
+
+  // Show tabs only on kanban
+  const tabBar = document.getElementById('board-tabs');
+  tabBar.classList.toggle('visible', name === 'kanban');
 
   // Highlight correct nav button
   const navBtn = document.querySelector(`.nav-btn[data-view="${name}"]`);
@@ -165,19 +182,17 @@ function showView(name) {
   document.getElementById('btn-add-card').style.display = name === 'kanban' && activeBoardId ? 'inline-flex' : 'none';
 
   if (name === 'tasks') {
-    const board = boards.find(b => b.id === activeBoardId);
-    document.getElementById('board-title').textContent = board ? board.name : 'CE Innovation Dashboard';
+    document.getElementById('board-title').textContent = 'All Tasks';
     renderAllTasks();
   }
   if (name === 'mytasks') {
     document.getElementById('board-title').textContent = myName ? `${myName}'s Tasks` : 'My Tasks';
     renderMyTasks();
   }
-  if (name === 'kanban' && activeBoardId) {
+  if (name === 'kanban') {
     const board = boards.find(b => b.id === activeBoardId);
-    document.getElementById('board-title').textContent = board ? board.name : '';
-    const matchingBtn = document.querySelector(`.board-btn[data-board="${activeBoardId}"]`);
-    if (matchingBtn) matchingBtn.classList.add('active');
+    document.getElementById('board-title').textContent = board ? board.name : 'CE Innovation Dashboard';
+    renderBoardTabs();
   }
 }
 
