@@ -99,7 +99,18 @@ input, select, textarea { font-family: inherit; }
 }
 .board-btn:hover  { background: var(--primary-light); color: var(--primary); }
 .board-btn.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.board-btn:hover .board-delete { opacity: 1; }
 .board-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+.board-name { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board-delete {
+  opacity: 0; margin-left: auto; flex-shrink: 0;
+  width: 18px; height: 18px; border-radius: 4px;
+  border: none; background: transparent;
+  color: var(--text-muted); font-size: 0.9rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.12s, background 0.12s, color 0.12s;
+}
+.board-delete:hover { background: var(--danger); color: #fff; }
 
 .btn-new-board {
   margin: 0 0.75rem 0.5rem;

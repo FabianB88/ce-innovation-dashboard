@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy }
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, getDocs }
   from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // ── Firebase ──────────────────────────────────────────────────────────────────
@@ -122,8 +122,19 @@ function renderBoardNav() {
   boards.forEach(board => {
     const btn = document.createElement('button');
     btn.className = 'board-btn' + (board.id === activeBoardId ? ' active' : '');
-    btn.innerHTML = `<span class="board-dot"></span>${esc(board.name)}`;
-    btn.addEventListener('click', () => selectBoard(board.id));
+    btn.innerHTML = `
+      <span class="board-dot"></span>
+      <span class="board-name">${esc(board.name)}</span>
+      <span class="board-delete" title="Delete board">✕</span>
+    `;
+    btn.addEventListener('click', e => {
+      if (e.target.classList.contains('board-delete')) {
+        e.stopPropagation();
+        confirmDeleteBoard(board);
+      } else {
+        selectBoard(board.id);
+      }
+    });
     nav.appendChild(btn);
   });
 }
@@ -349,10 +360,22 @@ function openCardModal(card, boardId) {
   document.getElementById('card-col').value      = card ? card.col       : 'backlog';
   document.getElementById('btn-delete-card').style.display = card ? 'inline-flex' : 'none';
 
-  // Populate assignee suggestions from all known names
+  // Assignee suggestions
   const names = [...new Set(allCards.map(c => c.assignee).filter(Boolean))];
   const dl = document.getElementById('assignee-suggestions');
   dl.innerHTML = names.map(n => `<option value="${esc(n)}">`).join('');
+
+  // Move to board dropdown — only visible when editing
+  const moveLbl    = document.getElementById('move-board-label');
+  const boardSel   = document.getElementById('card-board');
+  if (card && boards.length > 1) {
+    moveLbl.style.display = '';
+    boardSel.innerHTML = boards.map(b =>
+      `<option value="${b.id}" ${b.id === boardId ? 'selected' : ''}>${esc(b.name)}</option>`
+    ).join('');
+  } else {
+    moveLbl.style.display = 'none';
+  }
 
   document.getElementById('modal-card').classList.remove('hidden');
   setTimeout(() => document.getElementById('card-title').focus(), 50);
@@ -374,7 +397,14 @@ document.getElementById('btn-save-card').addEventListener('click', async () => {
   };
 
   if (editingCardId) {
-    await updateDoc(doc(db, 'boards', editingBoardId, 'cards', editingCardId), data);
+    const targetBoardId = document.getElementById('card-board').value || editingBoardId;
+    if (targetBoardId !== editingBoardId) {
+      // Move: create in target board, delete from source
+      await addDoc(collection(db, 'boards', targetBoardId, 'cards'), { ...data, createdAt: Date.now() });
+      await deleteDoc(doc(db, 'boards', editingBoardId, 'cards', editingCardId));
+    } else {
+      await updateDoc(doc(db, 'boards', editingBoardId, 'cards', editingCardId), data);
+    }
   } else {
     await addDoc(collection(db, 'boards', editingBoardId, 'cards'), { ...data, createdAt: Date.now() });
   }
@@ -386,6 +416,49 @@ document.getElementById('btn-delete-card').addEventListener('click', async () =>
   await deleteDoc(doc(db, 'boards', editingBoardId, 'cards', editingCardId));
   document.getElementById('modal-card').classList.add('hidden');
 });
+
+// ── Confirm modal (generic) ───────────────────────────────────────────────────
+let confirmCallback = null;
+
+function showConfirm(message, onOk) {
+  document.getElementById('confirm-msg').textContent = message;
+  confirmCallback = onOk;
+  document.getElementById('modal-confirm').classList.remove('hidden');
+}
+
+document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
+  document.getElementById('modal-confirm').classList.add('hidden');
+  confirmCallback = null;
+});
+document.getElementById('btn-confirm-ok').addEventListener('click', () => {
+  document.getElementById('modal-confirm').classList.add('hidden');
+  if (confirmCallback) { confirmCallback(); confirmCallback = null; }
+});
+
+// ── Delete board ──────────────────────────────────────────────────────────────
+function confirmDeleteBoard(board) {
+  const cardCount = allCards.filter(c => c.boardId === board.id).length;
+  const msg = `Delete "${board.name}"? This will also delete ${cardCount} card${cardCount !== 1 ? 's' : ''}. This cannot be undone.`;
+  showConfirm(msg, () => deleteBoard(board.id));
+}
+
+async function deleteBoard(boardId) {
+  // Delete all cards first
+  const cardsSnap = await getDocs(collection(db, 'boards', boardId, 'cards'));
+  await Promise.all(cardsSnap.docs.map(d => deleteDoc(d.ref)));
+  // Delete board doc
+  await deleteDoc(doc(db, 'boards', boardId));
+  // Unsubscribe listener
+  if (boardUnsubs[boardId]) { boardUnsubs[boardId](); delete boardUnsubs[boardId]; }
+  allCards = allCards.filter(c => c.boardId !== boardId);
+  if (activeBoardId === boardId) {
+    activeBoardId = null;
+    activeCards = [];
+    document.getElementById('board-title').textContent = 'CE Innovation Dashboard';
+    document.getElementById('btn-add-card').style.display = 'none';
+    showView('kanban');
+  }
+}
 
 // ── Board modal ───────────────────────────────────────────────────────────────
 document.getElementById('btn-new-board').addEventListener('click', () => {

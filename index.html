@@ -151,18 +151,35 @@
           <input id="card-due" class="input" type="date" />
         </label>
       </div>
-      <label>Column
-        <select id="card-col" class="input">
-          <option value="backlog">Backlog</option>
-          <option value="todo">To Do</option>
-          <option value="inprogress">In Progress</option>
-          <option value="done">Done</option>
-        </select>
-      </label>
+      <div class="modal-row">
+        <label>Column
+          <select id="card-col" class="input">
+            <option value="backlog">Backlog</option>
+            <option value="todo">To Do</option>
+            <option value="inprogress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+        </label>
+        <label id="move-board-label" style="display:none">Move to board
+          <select id="card-board" class="input"></select>
+        </label>
+      </div>
       <div class="modal-actions">
-        <button class="btn btn-danger" id="btn-delete-card" style="margin-right:auto;display:none">Delete</button>
+        <button class="btn btn-danger" id="btn-delete-card" style="margin-right:auto;display:none">Delete card</button>
         <button class="btn btn-ghost" id="btn-cancel-card">Cancel</button>
         <button class="btn btn-primary" id="btn-save-card">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirm delete board -->
+  <div id="modal-confirm" class="modal hidden">
+    <div class="modal-box">
+      <h3>Delete board?</h3>
+      <p class="modal-sub" id="confirm-msg">This will permanently delete the board and all its cards. This cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="btn-confirm-cancel">Cancel</button>
+        <button class="btn btn-danger" id="btn-confirm-ok">Delete</button>
       </div>
     </div>
   </div>
