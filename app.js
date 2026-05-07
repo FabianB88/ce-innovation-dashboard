@@ -23,18 +23,20 @@ let editingCardId = null;
 let unsubCards    = null;
 
 const COLS = [
-  { id: 'backlog',    label: 'Backlog',      color: '#9E9E9E' },
-  { id: 'todo',       label: 'To Do',        color: '#5C7A9E' },
-  { id: 'inprogress', label: 'In Progress',  color: '#5C7A5A' },
-  { id: 'review',     label: 'Review',       color: '#9E7A3A' },
-  { id: 'done',       label: 'Done',         color: '#52A065' },
+  { id: 'backlog',    label: 'Backlog',     color: '#9E9E9E' },
+  { id: 'todo',       label: 'To Do',       color: '#5C7A9E' },
+  { id: 'inprogress', label: 'In Progress', color: '#5C7A5A' },
+  { id: 'done',       label: 'Done',        color: '#52A065' },
 ];
 
 // ── Boards ────────────────────────────────────────────────────────────────────
 onSnapshot(query(collection(db, 'boards'), orderBy('createdAt')), snap => {
   boards = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   renderBoardNav();
-  if (activeBoardId && !boards.find(b => b.id === activeBoardId)) {
+  // Auto-select the first board on first load
+  if (!activeBoardId && boards.length > 0) {
+    selectBoard(boards[0].id);
+  } else if (activeBoardId && !boards.find(b => b.id === activeBoardId)) {
     activeBoardId = null;
     renderKanban();
   }
