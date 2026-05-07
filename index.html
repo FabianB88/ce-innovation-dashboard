@@ -19,6 +19,26 @@
         <span class="brand-text">CE Dashboard</span>
       </div>
 
+      <!-- Who am I -->
+      <div class="my-identity" id="my-identity">
+        <div class="identity-avatar" id="identity-avatar"></div>
+        <div class="identity-info">
+          <span class="identity-name" id="identity-name">Set your name</span>
+          <button class="identity-change" id="btn-change-name">change</button>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section-label">Personal</div>
+      <nav class="sidebar-nav">
+        <button class="nav-btn" data-view="mytasks">
+          <span>👤</span> My Tasks
+        </button>
+      </nav>
+
+      <div class="sidebar-divider"></div>
+
       <div class="sidebar-section-label">Boards</div>
       <nav class="board-nav" id="board-nav"></nav>
       <button class="btn-new-board" id="btn-new-board">+ New board</button>
@@ -27,11 +47,8 @@
 
       <div class="sidebar-section-label">Views</div>
       <nav class="sidebar-nav">
-        <button class="nav-btn active" data-view="kanban">
-          <span>⊞</span> Kanban
-        </button>
         <button class="nav-btn" data-view="tasks">
-          <span>✓</span> All Tasks
+          <span>☰</span> All Tasks
         </button>
       </nav>
     </aside>
@@ -42,29 +59,62 @@
       <!-- Top bar -->
       <header class="topbar">
         <div class="topbar-left">
-          <h1 class="board-title" id="board-title">Select a board</h1>
+          <h1 class="board-title" id="board-title">CE Innovation Dashboard</h1>
         </div>
         <div class="topbar-right">
-          <button class="btn btn-primary" id="btn-add-card" disabled>+ Add card</button>
+          <button class="btn btn-primary" id="btn-add-card" style="display:none">+ Add card</button>
         </div>
       </header>
 
+      <!-- My Tasks view -->
+      <div id="view-mytasks" class="view hidden">
+        <div class="tasks-wrap">
+          <div class="view-section-header">
+            <h2 id="mytasks-heading">My Tasks</h2>
+          </div>
+          <div id="mytasks-empty" class="empty-state hidden">
+            <p>No tasks assigned to you yet.</p>
+          </div>
+          <div class="task-groups" id="mytasks-list"></div>
+        </div>
+      </div>
+
       <!-- Kanban view -->
-      <div id="view-kanban" class="view">
+      <div id="view-kanban" class="view hidden">
         <div class="kanban-board" id="kanban-board">
           <div class="kanban-empty" id="kanban-empty">
-            <p>Create or select a board to get started</p>
+            <p>Select a board from the sidebar</p>
           </div>
         </div>
       </div>
 
-      <!-- All tasks view -->
+      <!-- All Tasks view -->
       <div id="view-tasks" class="view hidden">
         <div class="tasks-wrap">
+          <div class="view-section-header">
+            <h2>All Tasks</h2>
+            <div class="filter-row">
+              <input id="filter-assignee" class="input input-sm" type="text" placeholder="Filter by assignee..." />
+            </div>
+          </div>
           <div class="task-list" id="task-list"></div>
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Modal: Set name -->
+  <div id="modal-name" class="modal hidden">
+    <div class="modal-box">
+      <h3>Who are you?</h3>
+      <p class="modal-sub">Your name is used to show your personal task list.</p>
+      <label>Your name
+        <input id="name-input" class="input" type="text" placeholder="e.g. Fabian" />
+      </label>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="btn-save-name">Save</button>
+      </div>
     </div>
   </div>
 
@@ -93,8 +143,9 @@
         <textarea id="card-desc" class="input input-ta" rows="3" placeholder="Add more detail..."></textarea>
       </label>
       <div class="modal-row">
-        <label>Assignee
-          <input id="card-assignee" class="input" type="text" placeholder="Name" />
+        <label>Assign to
+          <input id="card-assignee" class="input" type="text" placeholder="Person's name" list="assignee-suggestions" />
+          <datalist id="assignee-suggestions"></datalist>
         </label>
         <label>Due date
           <input id="card-due" class="input" type="date" />
@@ -109,7 +160,7 @@
         </select>
       </label>
       <div class="modal-actions">
-        <button class="btn btn-danger" id="btn-delete-card" style="margin-right:auto; display:none">Delete</button>
+        <button class="btn btn-danger" id="btn-delete-card" style="margin-right:auto;display:none">Delete</button>
         <button class="btn btn-ghost" id="btn-cancel-card">Cancel</button>
         <button class="btn btn-primary" id="btn-save-card">Save</button>
       </div>
